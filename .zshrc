@@ -122,8 +122,7 @@ alias xpst='xclip -selection c -o'
 alias gfg='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 gfgup() {
 	gfg add -f $1
-	shift;
-	gfg commit -m"'$*'"
+	gfg commit -m"$2"
 	gfg push > /dev/null
 }
 
