@@ -134,6 +134,11 @@ gfgup() {
 	gfg commit -m"$2"
 	gfg push > /dev/null
 }
+gfgupm() {
+	gfg add -f -u
+	gfg commit -m"$2"
+	gfg push > /dev/null
+}
 
 ## path
 padd() {
