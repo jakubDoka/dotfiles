@@ -14,6 +14,7 @@ cargo install \
 	cargo-udeps \
 	cargo-tree \
 	bat \
-	ripgrep
+	ripgrep \
+	live-server
 
 

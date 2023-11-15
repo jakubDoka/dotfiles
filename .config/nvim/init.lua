@@ -605,5 +605,45 @@ for _, mode in ipairs(modes) do
   end
 end
 
+local current_live_server = nil;
+
+vim.api.nvim_create_user_command('LiveServerStart', function()
+  if current_live_server ~= nil then
+    print('Live server already running')
+    return
+  end
+
+  local bnary = '/home/mlokis/.cargo/bin/live-server'
+  local port = 5500
+  local cmd = bnary .. ' --port=' .. port
+
+  local pid = vim.fn.jobstart(cmd, {
+    on_exit = function(_, code)
+      print('Live server exited with code ' .. code)
+      current_live_server = nil
+    end,
+    on_stderr = function(_, data)
+      print('Live server error: ' .. data)
+    end,
+    on_stdout = function(_, data)
+      print('Live server output: ' .. data)
+    end,
+  });
+
+  vim.fn.jobstart('xdg-open http://localhost:' .. port)
+
+  current_live_server = pid
+end, {})
+
+vim.api.nvim_create_user_command('LiveServerStop', function()
+  if current_live_server == nil then
+    print('Live server not running')
+    return
+  end
+
+  vim.fn.jobstop(current_live_server)
+  current_live_server = nil
+end, {})
+
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
