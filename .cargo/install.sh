@@ -15,6 +15,8 @@ cargo install \
 	cargo-tree \
 	bat \
 	ripgrep \
-	live-server
+	live-server \
+	cargo-contract \
+	contracts-node
 
 

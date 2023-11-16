@@ -163,6 +163,9 @@ require('lazy').setup({
     dependencies = { 'nvim-lua/plenary.nvim' },
     opts = {
       defaults = {
+        file_ignore_patterns = {
+          "^target/", "^node_modules/"
+        },
         mappings = {
           i = {
             ['<C-u>'] = false,
@@ -500,6 +503,8 @@ local servers = {
       telemetry = { enable = false },
     },
   },
+  html = {},
+  r_language_server = {},
 }
 
 require('lspconfig').gdscript.setup {

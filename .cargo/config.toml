@@ -2,18 +2,18 @@
 linker = "clang"
 rustflags = ["-C", "link-arg=-fuse-ld=/usr/bin/mold"]
 
-[unstable]
-codegen-backend = true
-
-[profile.dev]
-codegen-backend = "cranelift"
+#[unstable]
+#codegen-backend = true
+#
+#[profile.dev]
+#codegen-backend = "llvm"
 
 # some projects might need this
 # [profile.dev.build-override]
 # opt-level = 3
 
 [build]
-wrapper = "~/.cargo/bin/sccache"
+rustc-wrapper = ".cargo/bin/sccache"
 rustflags = ["-Z", "threads=8"]
 
 [net]
