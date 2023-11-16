@@ -17,6 +17,5 @@ cargo install \
 	ripgrep \
 	live-server \
 	cargo-contract \
-	contracts-node
-
-
+	subxt-cli
+	# contracts-node \
