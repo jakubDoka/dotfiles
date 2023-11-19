@@ -9,6 +9,7 @@ rustup component add \
 	--toolchain nightly
 
 cargo install \
+	cargo-expand \
 	trunk \
 	paru \
 	cargo-udeps \
@@ -19,3 +20,15 @@ cargo install \
 	cargo-contract \
 	subxt-cli
 	# contracts-node \
+
+install_repo() {
+	local dir="temp-install"
+	local repo="$1"
+
+	git clone "$repo" "$dir"
+	cargo update --manifest-path "$dir/Cargo.toml"
+	cargo install --path "$dir"
+	rm -rf "$dir"
+}
+
+install_repo https://github.com/paritytech/smart-bench.git

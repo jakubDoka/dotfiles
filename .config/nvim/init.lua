@@ -12,6 +12,8 @@ vim.opt.listchars = {
   precedes = '❮',
 }
 vim.opt.list = true
+vim.opt.belloff = {}
+vim.opt.visualbell = true
 
 vim.g.copilot_no_tab_map = true
 vim.g.copilot_assume_mapped = true
