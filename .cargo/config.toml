@@ -14,7 +14,7 @@ rustflags = ["-C", "link-arg=-fuse-ld=/usr/bin/mold"]
 
 [build]
 rustc-wrapper = ".cargo/bin/sccache"
-rustflags = ["-Z", "threads=8"]
+#rustflags = ["-Z", "threads=8"]
 
 [net]
 git-fetch-with-cli = true

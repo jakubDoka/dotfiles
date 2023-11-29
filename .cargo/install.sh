@@ -18,17 +18,7 @@ cargo install \
 	ripgrep \
 	live-server \
 	cargo-contract \
-	subxt-cli
+	subxt-cli \
+	cargo-sweep
 	# contracts-node \
 
-install_repo() {
-	local dir="temp-install"
-	local repo="$1"
-
-	git clone "$repo" "$dir"
-	cargo update --manifest-path "$dir/Cargo.toml"
-	cargo install --path "$dir"
-	rm -rf "$dir"
-}
-
-install_repo https://github.com/paritytech/smart-bench.git

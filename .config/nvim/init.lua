@@ -476,26 +476,24 @@ local servers = {
   -- gopls = {},
   pyright = {},
   rust_analyzer = {
-    settings = {
-      ["rust-analyzer"] = {
-        checkOnSave = {
-          command = "clippy",
+    ["rust-analyzer"] = {
+      checkOnSave = {
+        command = "clippy",
+      },
+      imports = {
+        granularity = {
+          group = "module",
         },
-        imports = {
-          granularity = {
-            group = "module",
-          },
-          prefix = "self",
+        prefix = "self",
+      },
+      cargo = {
+        buildScripts = {
+          enable = true,
         },
-        cargo = {
-          buildScripts = {
-            enable = true,
-          },
-        },
-        procMacro = {
-          enable = true
-        },
-      }
+      },
+      procMacro = {
+        enable = true
+      },
     }
   },
   tsserver = {},
@@ -622,7 +620,8 @@ vim.api.nvim_create_user_command('LiveServerStart', function()
 
   local bnary = '/home/mlokis/.cargo/bin/live-server'
   local port = 5500
-  local cmd = bnary .. ' --port=' .. port
+  local host = 'localhost'
+  local cmd = bnary .. ' --port=' .. port .. ' --host=' .. host
 
   local pid = vim.fn.jobstart(cmd, {
     on_exit = function(_, code)
@@ -637,7 +636,7 @@ vim.api.nvim_create_user_command('LiveServerStart', function()
     end,
   });
 
-  vim.fn.jobstart('xdg-open http://localhost:' .. port)
+  vim.fn.jobstart('xdg-open http://' .. host .. ':' .. port)
 
   current_live_server = pid
 end, {})

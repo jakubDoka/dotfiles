@@ -139,6 +139,11 @@ gfgupm() {
 	gfg commit -m"$2"
 	gfg push > /dev/null
 }
+gacp() {
+	git add $1
+	git commit -m"$2"
+	git push
+}
 
 ## path
 padd() {
