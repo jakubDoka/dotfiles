@@ -1,6 +1,6 @@
 [target.x86_64-unknown-linux-gnu]
 linker = "clang"
-rustflags = ["-C", "link-arg=-fuse-ld=/usr/bin/mold"]
+rustflags = ["-C", "link-arg=-fuse-ld=/usr/bin/mold", "-Clink-arg=-Wl,--no-rosegment"]
 
 #[unstable]
 #codegen-backend = true
@@ -14,7 +14,7 @@ rustflags = ["-C", "link-arg=-fuse-ld=/usr/bin/mold"]
 
 [build]
 rustc-wrapper = ".cargo/bin/sccache"
-#rustflags = ["-Z", "threads=8"]
+rustflags = ["-Z", "threads=8"]
 
 [net]
 git-fetch-with-cli = true

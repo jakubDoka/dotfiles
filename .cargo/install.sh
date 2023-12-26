@@ -19,6 +19,10 @@ cargo install \
 	live-server \
 	cargo-contract \
 	subxt-cli \
+	mdbook \
+	mdbook-mermaid \
+	wasm-bindgen-cli \
+	wasm-opt \
 	cargo-sweep
 	# contracts-node \
 

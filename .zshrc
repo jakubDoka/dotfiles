@@ -123,33 +123,22 @@ compinit
 # End of lines added by compinstall
 # My config lines
 
+## path
+padd() { path+=($1); }
+padd ~/.cargo/bin/
+
+## completions
+mdbook completions zsh | source /dev/stdin
+
+## aliasses
 alias v='nvim'
 alias xcpy='xclip -selection c -i'
 alias xpst='xclip -selection c -o'
 
 ## config preservation
 alias gfg='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
-gfgup() {
-	gfg add -f $1
-	gfg commit -m"$2"
-	gfg push > /dev/null
-}
-gfgupm() {
-	gfg add -f -u
-	gfg commit -m"$2"
-	gfg push > /dev/null
-}
-gacp() {
-	git add $1
-	git commit -m"$2"
-	git push
-}
-
-## path
-padd() {
-	path+=($1)
-}
-
-padd ~/.cargo/bin/
+gfgup() { gfg add -f $1 && gfg commit -m"$2" && gfg push > /dev/null; }
+gfgupm() { gfg add -f -u && gfg commit -m"$2" && gfg push > /dev/null; }
+gacp() { git add $1 && git commit -m"$2" && git push; }
 
 # End of my config

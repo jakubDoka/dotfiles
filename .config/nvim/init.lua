@@ -1,6 +1,5 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
-vim.wo.relativenumber = true
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.termguicolors = true
@@ -13,7 +12,7 @@ vim.opt.listchars = {
 }
 vim.opt.list = true
 vim.opt.belloff = {}
-vim.opt.visualbell = true
+vim.opt.errorbells = true
 
 vim.g.copilot_no_tab_map = true
 vim.g.copilot_assume_mapped = true
@@ -40,6 +39,16 @@ require('lazy').setup({
   -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
+
+  'craigmac/vim-mermaid',
+  {
+    'saecki/crates.nvim',
+    tag = 'stable',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require('crates').setup()
+    end,
+  },
 
   {
     'nvim-tree/nvim-tree.lua',
@@ -84,6 +93,9 @@ require('lazy').setup({
   {
     -- Autocompletion
     'hrsh7th/nvim-cmp',
+    opts = {
+      completion = { completeopt = "menu,menuone,noselect" }
+    },
     dependencies = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' },
   },
 
@@ -352,7 +364,7 @@ end
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'rust', 'tsx', 'typescript', 'vim', 'proto', 'sql' },
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'rust', 'tsx', 'typescript', 'vim', 'proto', 'sql', 'jsdoc' },
 
   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
   auto_install = true,
@@ -505,6 +517,7 @@ local servers = {
   },
   html = {},
   r_language_server = {},
+  bashls = {},
 }
 
 require('lspconfig').gdscript.setup {
