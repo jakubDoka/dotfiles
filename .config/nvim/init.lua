@@ -19,7 +19,6 @@ vim.opt.splitbelow = true
 vim.opt.list = true
 vim.opt.listchars = { eol = 'ඞ', tab = '▸ ', trail = '·', extends = '❯', precedes = '❮' }
 vim.opt.inccommand = 'split'
-vim.opt.cursorline = true
 vim.opt.scrolloff = 10
 vim.opt.hlsearch = true
 vim.opt.termguicolors = true
@@ -57,6 +56,13 @@ end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
+  {
+    'github/copilot.vim',
+    config = function()
+      vim.api.nvim_set_keymap('i', '<C-J>', 'copilot#Accept("<CR>")', { silent = true, expr = true })
+    end,
+  },
+
   'tpope/vim-sleuth',
 
   { 'numToStr/Comment.nvim', opts = {} },
@@ -149,9 +155,7 @@ require('lazy').setup({
       'williamboman/mason.nvim',
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
-
       { 'j-hui/fidget.nvim', opts = {} },
-
       { 'folke/neodev.nvim', opts = {} },
     },
     config = function()
@@ -194,7 +198,6 @@ require('lazy').setup({
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
       local servers = {
-
         lua_ls = {
           settings = {
             Lua = {
@@ -204,14 +207,33 @@ require('lazy').setup({
             },
           },
         },
+        rust_analyzer = {
+          ['rust-analyzer'] = {
+            checkOnSave = {
+              command = 'clippy',
+            },
+            imports = {
+              granularity = {
+                group = 'module',
+              },
+              prefix = 'self',
+            },
+            cargo = {
+              buildScripts = {
+                enable = true,
+              },
+            },
+            procMacro = {
+              enable = true,
+            },
+          },
+        },
       }
 
       require('mason').setup()
 
       local ensure_installed = vim.tbl_keys(servers or {})
-      vim.list_extend(ensure_installed, {
-        'stylua',
-      })
+      vim.list_extend(ensure_installed, { 'stylua' })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
