@@ -1,8 +1,3 @@
-# bootstrap tmux
-if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
-  exec tmux new-session -A -s main
-fi
-
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -139,6 +134,17 @@ alias xpst='xclip -selection c -o'
 alias gfg='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 gfgup() { gfg add -f $1 && gfg commit -m"$2" && gfg push > /dev/null; }
 gfgupm() { gfg add -f -u && gfg commit -m"$2" && gfg push > /dev/null; }
+
+## git
 gacp() { git add $1 && git commit -m"$2" && git push; }
+
+## global replace
+rgsed() { 
+  if [ "$3" = "-i" ]; then
+    rg -l $1 | xargs sed -i -E "s/$1/$2/g"
+  else
+    rg -l $1 | xargs sed -E "s/$1/(& -> $2)/g" | rg "\($1 -> $2\)"
+  fi
+}
 
 # End of my config

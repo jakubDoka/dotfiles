@@ -3,5 +3,10 @@
 [user]
 	email = jdoka@crownsterling.io
 	name = mlokr
+	siningkey = 7EA4A8DC8153741B
 [color]
 	ui = auto
+[core]
+	editor = nvim
+[commit]
+	gpgsign = true
