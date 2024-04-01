@@ -129,6 +129,9 @@ mdbook completions zsh | source /dev/stdin
 alias v='nvim'
 alias xcpy='xclip -selection c -i'
 alias xpst='xclip -selection c -o'
+alias dark='sudo sh -c "echo 50 > /sys/class/backlight/intel_backlight/brightness"'
+alias light='sudo sh -c "cat /sys/class/backlight/intel_backlight/max_brightness > /sys/class/backlight/intel_backlight/brightness"'
+alias headset='bluetoothctl connect EE:36:62:B8:7A:43'
 
 ## config preservation
 alias gfg='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
