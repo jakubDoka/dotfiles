@@ -33,7 +33,6 @@ for _, key in ipairs { '<Up>', '<Down>', '<Left>', '<Right>', '<PageUp>', '<Page
 end
 
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
-vim.keymap.set('i', 'aa', '<Esc>', { desc = 'Exit insert mode' })
 
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })

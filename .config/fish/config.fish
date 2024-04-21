@@ -1,6 +1,4 @@
 if status is-interactive
-    # Commands to run in interactive sessions can go here
-
     set HEADPHONES_MAC "EE:36:62:B8:7A:43"
 
     function padd
@@ -25,9 +23,8 @@ if status is-interactive
        gfg add -f -u && gfg commit -m"$argv[1]" && gfg push
     end
 
-    ## git
-    function gacm
-        git add -u && git commit -m"$argv[1]" && git push
+    function gacp
+        git add $argv[1] && git commit -m"$argv[2]" && git push
     end
 
     ## global replace
@@ -38,13 +35,52 @@ if status is-interactive
         rg -l $argv[1] | xargs sed -E "s/$argv[1]/(& -> $argv[2])/g" | rg "\($argv[1] -> $argv[2]\)"
       end
     end
+
+    # extra completions
+    set COMP_DIR $HOME/.config/fish/completions/
+    rg --generate=complete-fish > $COMP_DIR/rg.fish
+end
+
+
+function fish_user_key_bindings
+    fish_vi_key_bindings
+    fish_vi_cursor
+
+    function sarch_directories
+        set FZF_DEFAULT_COMMAND 'rg --files'
+        set TARGET $(fzf --walker=dir,follow,hidden)
+        test -n "$TARGET" && cd $TARGET && __fish_cancel_commandline
+    end
+
+    function sarch_files
+        set FZF_DEFAULT_COMMAND 'rg --files'
+        set TARGET $(fzf --walker=file,follow,hidden)
+        test -n "$TARGET" && v $TARGET
+    end
+
+    function sarch_all
+        set TARGET $(fzf --walker=file,follow,hidden)
+        test -n "$TARGET" && v $TARGET
+    end
+
+    bind --mode default \x20sd sarch_directories
+    bind --mode default \x20sf sarch_files
+    bind --mode default \x20sa sarch_all
 end
 
 function fish_prompt
+    set STATUS $status
+    echo -n "::<"
     set_color C46A00
-    echo -n " $(prompt_pwd)"
+    echo -n "$(prompt_pwd)"
+    if [ $STATUS -ne 0 ]
+        set_color normal
+        echo -n ", "
+        set_color red
+        echo -n "$STATUS"
+    end
     set_color normal
-    echo -n ' > '
+    echo -n '> '
 end
 
 function fish_greeting

@@ -32,6 +32,7 @@ exec --no-startup-id swaymsg 'exec slack'
 
 for_window [title="Brave"] move to workspace 2
 for_window [title="Slack"] move to workspace 3
+for_window [title="Steam"] move to workspace 4
 
 #
 # Example configuration:
