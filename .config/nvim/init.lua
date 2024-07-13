@@ -1,5 +1,3 @@
-vim.g.copilot_assume_mapped = true
-vim.g.copilot_no_tab_map = true
 vim.g.have_nerd_font = false
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
@@ -70,13 +68,6 @@ end
 
 require('lazy').setup({
   {
-    'github/copilot.vim',
-    config = function()
-      vim.api.nvim_set_keymap('i', '<C-J>', 'copilot#Accept("<CR>")', { silent = true, expr = true })
-    end,
-  },
-
-  {
     'ThePrimeagen/harpoon',
     config = function()
       amap('m', require('harpoon.mark').add_file, '[M]mark with harpoon')
@@ -91,6 +82,24 @@ require('lazy').setup({
         end, '[H]arpoon [G]o to mark ' .. key)
       end
     end,
+  },
+
+  {
+    'supermaven-inc/supermaven-nvim',
+    opts = {
+      keymaps = {
+        accept_suggestion = '<Tab>',
+        clear_suggestion = '<C-]>',
+        accept_word = '<C-j>',
+      },
+      ignore_filetypes = { markdown = true },
+      color = {
+        suggestion_color = '#ffffff',
+        cterm = 244,
+      },
+      disable_inline_completion = true, -- disables inline completion for use with cmp
+      disable_keymaps = true, -- disables built in keymaps for more manual control
+    },
   },
 
   'tpope/vim-sleuth',
@@ -222,24 +231,48 @@ require('lazy').setup({
             },
           },
         },
+        cssls = {
+          capabilities = {
+            textDocument = {
+              completion = {
+                completionItem = {
+                  snippetSupport = true,
+                },
+              },
+            },
+          },
+        },
+        html = {
+          capabilities = {
+            textDocument = {
+              completion = {
+                completionItem = {
+                  snippetSupport = true,
+                },
+              },
+            },
+          },
+        },
         rust_analyzer = {
           settings = {
-            checkOnSave = {
-              command = 'clippy',
-            },
-            imports = {
-              granularity = {
-                group = 'module',
+            ['rust-analyzer'] = {
+              checkOnSave = {
+                command = 'clippy',
               },
-              prefix = 'self',
-            },
-            cargo = {
-              buildScripts = {
+              imports = {
+                granularity = {
+                  group = 'module',
+                },
+                prefix = 'self',
+              },
+              cargo = {
+                buildScripts = {
+                  enable = true,
+                },
+              },
+              procMacro = {
                 enable = true,
               },
-            },
-            procMacro = {
-              enable = true,
             },
           },
         },
@@ -256,7 +289,7 @@ require('lazy').setup({
           function(server_name)
             local server = servers[server_name] or {}
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server.settings or {})
+            require('lspconfig')[server_name].setup(server)
           end,
         },
       }
@@ -320,7 +353,7 @@ require('lazy').setup({
           ['<C-b>'] = cmp.mapping.scroll_docs(-4),
           ['<C-f>'] = cmp.mapping.scroll_docs(4),
 
-          ['<C-y>'] = cmp.mapping.confirm { select = true },
+          ['<C-j>'] = cmp.mapping.confirm { select = true },
 
           ['<C-Space>'] = cmp.mapping.complete {},
 
@@ -339,6 +372,7 @@ require('lazy').setup({
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
           { name = 'path' },
+          { name = 'supermaven' },
         },
       }
     end,

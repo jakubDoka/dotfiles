@@ -29,7 +29,7 @@ if status is-interactive
 
     ## global replace
     function rgsed
-      if "$argv[3]" = "-i"
+      if [ "$argv[3]" = "-i" ]
         rg -l $argv[1] | xargs sed -i -E "s/$argv[1]/$argv[2]/g"
       else
         rg -l $argv[1] | xargs sed -E "s/$argv[1]/(& -> $argv[2])/g" | rg "\($argv[1] -> $argv[2]\)"
@@ -46,26 +46,30 @@ function fish_user_key_bindings
     fish_vi_key_bindings
     fish_vi_cursor
 
-    function sarch_directories
-        set FZF_DEFAULT_COMMAND 'rg --files'
-        set TARGET $(fzf --walker=dir,follow,hidden)
+    function search_directories
+        set FZF_DEFAULT_COMMAND 'rg --files | rg -v "/target/"'
+        set TARGET $(fzf --walker=dir,hidden)
         test -n "$TARGET" && cd $TARGET && __fish_cancel_commandline
     end
 
-    function sarch_files
-        set FZF_DEFAULT_COMMAND 'rg --files'
-        set TARGET $(fzf --walker=file,follow,hidden)
+    function search_files
+        set FZF_DEFAULT_COMMAND 'rg --files | rg -v "/target/"'
+        set TARGET $(fzf --walker=file,hidden --preview="bat --color=always --style=header,grid --line-range :500 {}")
         test -n "$TARGET" && v $TARGET
     end
 
-    function sarch_all
-        set TARGET $(fzf --walker=file,follow,hidden)
+    function search_all
+        set TARGET $(fzf --walker=file,dir,hidden)
         test -n "$TARGET" && v $TARGET
     end
 
-    bind --mode default \x20sd sarch_directories
-    bind --mode default \x20sf sarch_files
-    bind --mode default \x20sa sarch_all
+    alias clear_kb='clear; commandline -f repaint'
+
+    bind --mode default -m insert \x20sd search_directories
+    bind --mode default -m insert \x20sf search_files
+    bind --mode default -m insert \x20sa search_all
+    bind --mode insert \cE clear_kb
+    bind --mode default \cE clear_kb
 end
 
 function fish_prompt
@@ -86,3 +90,6 @@ end
 function fish_greeting
 
 end
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/home/mlokis/google-cloud-sdk/path.fish.inc' ]; . '/home/mlokis/google-cloud-sdk/path.fish.inc'; end
