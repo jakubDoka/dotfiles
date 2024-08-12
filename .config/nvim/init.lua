@@ -1,83 +1,109 @@
-vim.g.have_nerd_font = false
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
-vim.opt.belloff = {}
-vim.opt.breakindent = true
-vim.opt.clipboard = 'unnamedplus'
-vim.opt.errorbells = true
-vim.opt.hlsearch = true
-vim.opt.ignorecase = true
-vim.opt.inccommand = 'split'
-vim.opt.listchars = { eol = 'ඞ', tab = '▸ ', trail = '·', extends = '❯', precedes = '❮' }
-vim.opt.list = true
-vim.opt.mouse = 'a'
-vim.opt.number = true
-vim.opt.relativenumber = true
-vim.opt.scrolloff = 0
-vim.opt.shiftwidth = 4
-vim.opt.showmode = false
-vim.opt.signcolumn = 'yes'
-vim.opt.smartcase = true
-vim.opt.splitbelow = true
-vim.opt.splitright = true
-vim.opt.tabstop = 4
-vim.opt.termguicolors = true
-vim.opt.timeoutlen = 300
-vim.opt.undofile = true
-vim.opt.updatetime = 250
+table.unpack = table.unpack or unpack
 
-for _, key in ipairs { '<Up>', '<Down>', '<Left>', '<Right>', '<PageUp>', '<PageDown>' } do
-  vim.keymap.set({ 'i', 'n', 'v', 'c' }, key, '<Nop>', { noremap = true, silent = true })
+local function curry(f, ...)
+  local vargs = { ... }
+  return function()
+    return f(table.unpack(vargs))
+  end
 end
 
-vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
-
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
-vim.keymap.set('n', '<leader>tr', '<cmd>set relativenumber!<CR>', { desc = '[T]oggle [R]elative number' })
-
-vim.keymap.set('c', '<M-h>', '<Left>', { desc = 'Move left' })
-vim.keymap.set('c', '<M-j>', '<Down>', { desc = 'Move down' })
-vim.keymap.set('c', '<M-k>', '<Up>', { desc = 'Move up' })
-vim.keymap.set('c', '<M-l>', '<Right>', { desc = 'Move right' })
-
-vim.api.nvim_create_autocmd('TextYankPost', {
-  desc = 'Highlight when yanking (copying) text',
-  group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
-  callback = function()
-    vim.highlight.on_yank()
-  end,
-})
-
-local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
-if not vim.loop.fs_stat(lazypath) then
-  local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
-  vim.fn.system { 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }
-end ---@diagnostic disable-next-line: undefined-field
-vim.opt.rtp:prepend(lazypath)
-
-local function lmap(seq, fn, desc)
-  vim.keymap.set('n', '<leader>' .. seq, fn, { desc = desc })
+do -- options
+  vim.g.have_nerd_font = true
+  vim.g.mapleader = ' '
+  vim.g.maplocalleader = ' '
+  vim.opt.belloff = {}
+  vim.opt.breakindent = true
+  vim.opt.clipboard = 'unnamedplus'
+  vim.opt.errorbells = true
+  vim.opt.hlsearch = true
+  vim.opt.ignorecase = true
+  vim.opt.inccommand = 'split'
+  vim.opt.listchars = { eol = 'ඞ', tab = '▸ ', trail = '·', extends = '❯', precedes = '❮' }
+  vim.opt.list = true
+  vim.opt.mouse = 'a'
+  vim.opt.number = true
+  vim.opt.relativenumber = true
+  vim.opt.scrolloff = 0
+  vim.opt.shiftwidth = 4
+  vim.opt.showmode = false
+  vim.opt.signcolumn = 'yes'
+  vim.opt.smartcase = true
+  vim.opt.splitbelow = true
+  vim.opt.splitright = true
+  vim.opt.tabstop = 4
+  vim.opt.termguicolors = true
+  vim.opt.timeoutlen = 300
+  vim.opt.undofile = true
+  vim.opt.updatetime = 250
 end
 
-local function amap(seq, fn, desc)
-  vim.keymap.set('n', '<M-' .. seq .. '>', fn, { desc = desc })
+do -- install lazy
+  vim.api.nvim_create_autocmd('TextYankPost', {
+    desc = 'Highlight when yanking (copying) text',
+    group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
+    callback = function()
+      vim.highlight.on_yank()
+    end,
+  })
+
+  local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
+  if not vim.loop.fs_stat(lazypath) then
+    local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
+    vim.fn.system { 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }
+  end ---@diagnostic disable-next-line: undefined-field
+  vim.opt.rtp:prepend(lazypath)
+end
+
+local map_presets = {
+  mode = 'n',
+  prefix = '',
+  suffix = '',
+}
+
+local function map_cfg(mode, prefix, suffix)
+  map_presets.mode = mode
+  map_presets.prefix = prefix or ''
+  map_presets.suffix = suffix or ''
+end
+
+local function map(key, fn, desc)
+  vim.keymap.set(map_presets.mode, map_presets.prefix .. key .. map_presets.suffix, fn, { desc = desc })
+end
+
+do -- rebinds
+  local disabled = { '<Up>', '<Down>', '<Left>', '<Right>', '<PageUp>', '<PageDown>' }
+
+  for _, key in ipairs(disabled) do
+    vim.keymap.set({ 'i', 'n', 'v', 'c' }, key, '<Nop>', { noremap = true, silent = true })
+  end
+
+  vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+
+  map_cfg 'n'
+  map('[d', vim.diagnostic.goto_prev, 'Go to previous [D]iagnostic message')
+  map(']d', vim.diagnostic.goto_next, 'Go to next [D]iagnostic message')
+  map('<leader>tr', '<cmd>set relativenumber!<CR>', '[T]oggle [R]elative number')
+
+  map_cfg('c', '<M-', '>')
+  map('h', '<Left>', 'Move left')
+  map('j', '<Down>', 'Move down')
+  map('k', '<Up>', 'Move up')
+  map('l', '<Right>', 'Move right')
 end
 
 require('lazy').setup({
   {
     'ThePrimeagen/harpoon',
     config = function()
-      amap('m', require('harpoon.mark').add_file, '[M]mark with harpoon')
-      amap('q', require('harpoon.ui').toggle_quick_menu, '[H]arpoon [T]oggle [M]enu')
-      amap('n', require('harpoon.ui').nav_next, '[H]arpoon [G]o to [N]ext mark')
-      amap('p', require('harpoon.ui').nav_next, '[H]arpoon [G]o to [N]ext mark')
+      map_cfg('n', '<M-', '>')
+      map('m', require('harpoon.mark').add_file, '[M]mark with harpoon')
+      map('q', require('harpoon.ui').toggle_quick_menu, '[H]arpoon [T]oggle [M]enu')
+      map('n', require('harpoon.ui').nav_next, '[H]arpoon [G]o to [N]ext mark')
+      map('p', require('harpoon.ui').nav_next, '[H]arpoon [G]o to [N]ext mark')
 
       for i = 0, 9 do
         local key = (i + 1) % 10
-        amap(tostring(key), function()
+        map(tostring(key), function()
           require('harpoon.ui').nav_file(key)
         end, '[H]arpoon [G]o to mark ' .. key)
       end
@@ -85,21 +111,50 @@ require('lazy').setup({
   },
 
   {
-    'supermaven-inc/supermaven-nvim',
-    opts = {
-      keymaps = {
-        accept_suggestion = '<Tab>',
-        clear_suggestion = '<C-]>',
-        accept_word = '<C-j>',
-      },
-      ignore_filetypes = { markdown = true },
-      color = {
-        suggestion_color = '#ffffff',
-        cterm = 244,
-      },
-      disable_inline_completion = true, -- disables inline completion for use with cmp
-      disable_keymaps = true, -- disables built in keymaps for more manual control
-    },
+    'mfussenegger/nvim-dap',
+    config = function()
+      local dap, dwg = require 'dap', require 'dap.ui.widgets'
+
+      map_cfg('n', '<F', '>')
+      map('5', dap.continue, '[D]ebug [C]ontinue')
+      map('6', dap.step_over, '[D]ebug [N]ext [O]ver')
+      map('7', dap.step_into, '[D]ebug [I]n [T]o')
+      map('8', dap.step_out, '[D]ebug [O]ut')
+      map_cfg('n', '<leader>')
+      map('tb', dap.toggle_breakpoint, '[D]ebug [T]oggle [B]reakpoint')
+      map('cb', dap.clear_breakpoints, '[D]ebug [C]lear [B]reakpoints')
+      map('dr', dap.repl.open, '[D]ebug [R]epl')
+      map('dh', dwg.hover, '[D]ebug [H]over')
+      map('dp', dwg.preview, '[D]ebug [P]review')
+      map('df', curry(dwg.centered_float, dwg.frames), '[D]ebug [F]rames')
+      map('ds', curry(dwg.centered_float, dwg.scopes), '[D]ebug [S]copes')
+      map('de', curry(dwg.centered_float, dwg.expression), '[D]ebug [E]xpression')
+      map('dt', curry(dwg.centered_float, dwg.threads), '[D]ebug [T]hreads')
+      map('ds', curry(dwg.centered_float, dwg.sessions), '[D]ebug [S]session')
+
+      -- dap-adapters
+      dap.adapters.lldb = {
+        type = 'executable',
+        command = '/usr/bin/lldb-dap',
+        name = 'lldb',
+      }
+
+      -- dap-configs
+      local lldb = {
+        name = 'Launch lldb',
+        type = 'lldb',
+        request = 'launch',
+        program = function()
+          return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+        end,
+        cwd = '${workspaceFolder}',
+        stopOnEntry = false,
+        args = {},
+        runInTerminal = true,
+      }
+
+      dap.configurations.zig = { lldb }
+    end,
   },
 
   'tpope/vim-sleuth',
@@ -125,12 +180,17 @@ require('lazy').setup({
     config = function()
       require('which-key').setup()
 
-      require('which-key').register {
-        ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-        ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-        ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-        ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-        ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
+      require('which-key').add {
+        { '<leader>c', group = '[C]ode' },
+        { '<leader>c_', hidden = true },
+        { '<leader>d', group = '[D]ocument' },
+        { '<leader>d_', hidden = true },
+        { '<leader>r', group = '[R]ename' },
+        { '<leader>r_', hidden = true },
+        { '<leader>s', group = '[S]earch' },
+        { '<leader>s_', hidden = true },
+        { '<leader>w', group = '[W]orkspace' },
+        { '<leader>w_', hidden = true },
       }
     end,
   },
@@ -140,18 +200,17 @@ require('lazy').setup({
     event = 'VimEnter',
     branch = '0.1.x',
     dependencies = {
+      'mfussenegger/nvim-dap',
       'nvim-lua/plenary.nvim',
+      'nvim-telescope/telescope-ui-select.nvim',
+      'nvim-telescope/telescope-dap.nvim',
       {
         'nvim-telescope/telescope-fzf-native.nvim',
-
         build = 'make',
-
         cond = function()
           return vim.fn.executable 'make' == 1
         end,
       },
-      { 'nvim-telescope/telescope-ui-select.nvim' },
-
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
@@ -166,22 +225,25 @@ require('lazy').setup({
         },
       }
 
-      pcall(ts.load_extension, 'fzf')
-      pcall(ts.load_extension, 'ui-select')
+      ts.load_extension 'fzf'
+      ts.load_extension 'ui-select'
+      ts.load_extension 'dap'
 
-      lmap('sh', builtin.help_tags, '[S]earch [H]elp')
-      lmap('sk', builtin.keymaps, '[S]earch [K]eymaps')
-      lmap('sf', builtin.find_files, '[S]earch [F]iles')
-      lmap('ss', builtin.builtin, '[S]earch [S]elect Telescope')
-      lmap('sw', builtin.grep_string, '[S]earch current [W]ord')
-      lmap('sg', builtin.live_grep, '[S]earch by [G]rep')
-      lmap('sd', builtin.diagnostics, '[S]earch [D]iagnostics')
-      lmap('sr', builtin.resume, '[S]earch [R]esume')
-      lmap('s.', builtin.oldfiles, '[S]earch Recent Files ("." for repeat)')
-      lmap('<leader>', builtin.buffers, '[ ] Find existing buffers')
-      lmap('/', builtin.current_buffer_fuzzy_find, '[/] Fuzzily search in current buffer')
-      lmap('s/', builtin.live_grep, '[S]earch [/] in Open Files')
-      lmap('sn', builtin.find_files, '[S]earch [N]eovim files')
+      map_cfg('n', '<leader>')
+      map('sh', builtin.help_tags, '[S]earch [H]elp')
+      map('sk', builtin.keymaps, '[S]earch [K]eymaps')
+      map('sf', builtin.find_files, '[S]earch [F]iles')
+      map('ss', builtin.builtin, '[S]earch [S]elect Telescope')
+      map('sw', builtin.grep_string, '[S]earch current [W]ord')
+      map('sg', builtin.live_grep, '[S]earch by [G]rep')
+      map('sd', builtin.diagnostics, '[S]earch [D]iagnostics')
+      map('sr', builtin.resume, '[S]earch [R]esume')
+      map('s.', builtin.oldfiles, '[S]earch Recent Files ("." for repeat)')
+      map('<leader>', builtin.buffers, '[ ] Find existing buffers')
+      map('/', builtin.current_buffer_fuzzy_find, '[/] Fuzzily search in current buffer')
+      map('s/', builtin.live_grep, '[S]earch [/] in Open Files')
+      map('sn', builtin.find_files, '[S]earch [N]eovim files')
+      map('lb', ':Telescope dap list_breakpoints<CR>', '[L]ist [B]reakpoints')
     end,
   },
 
@@ -199,22 +261,16 @@ require('lazy').setup({
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
         callback = function(event)
           local tb = require 'telescope.builtin'
-          local map = function(keys, func, desc)
+          local lmap = function(keys, func, desc)
             vim.keymap.set('n', keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
           end
 
-          map('gd', tb.lsp_definitions, '[G]oto [D]efinition')
-          map('gr', tb.lsp_references, '[G]oto [R]eferences')
-          map('gI', tb.lsp_implementations, '[G]oto [I]mplementation')
-          map('<leader>D', tb.lsp_type_definitions, 'Type [D]efinition')
-          map('<leader>ds', tb.lsp_document_symbols, '[D]ocument [S]ymbols')
-          map('<leader>ws', tb.lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
-          map('<leader>ws', tb.lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
-          map('<leader>lr', tb.lsp_references, '[L]ist [R]eferences')
-          map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-          map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
-          map('K', vim.lsp.buf.hover, 'Hover Documentation')
-          map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+          lmap('<leader>ws', tb.lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+          lmap('<leader>lr', tb.lsp_references, '[L]ist [R]eferences')
+          lmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+          lmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+          lmap('K', vim.lsp.buf.hover, 'Hover Documentation')
+          lmap('gd', tb.lsp_definitions, '[G]oto [D]efinition')
         end,
       })
 
@@ -314,21 +370,33 @@ require('lazy').setup({
   },
 
   {
+    'L3MON4D3/LuaSnip',
+    build = (function()
+      if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
+        return
+      end
+      return 'make install_jsregexp'
+    end)(),
+    config = function()
+      local ls = require 'luasnip'
+
+      vim.keymap.set({ 'i' }, '<C-K>', ls.expand)
+      vim.keymap.set({ 'i', 's' }, '<C-L>', curry(ls.jump, 1))
+      vim.keymap.set({ 'i', 's' }, '<C-J>', curry(ls.jump, -1))
+      vim.keymap.set({ 'i', 's' }, '<C-E>', function()
+        if ls.choice_active() then
+          ls.change_choice(1)
+        end
+      end)
+    end,
+  },
+
+  {
     'hrsh7th/nvim-cmp',
     event = 'InsertEnter',
     dependencies = {
-      {
-        'L3MON4D3/LuaSnip',
-        build = (function()
-          if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
-            return
-          end
-          return 'make install_jsregexp'
-        end)(),
-        dependencies = {},
-      },
       'saadparwaiz1/cmp_luasnip',
-
+      'L3MON4D3/LuaSnip',
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
     },
@@ -406,7 +474,12 @@ require('lazy').setup({
     end,
   },
 
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  {
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = { signs = false },
+  },
 
   {
     'echasnovski/mini.nvim',
@@ -436,10 +509,10 @@ require('lazy').setup({
       incremental_selection = {
         enable = true,
         keymaps = {
-          init_selection = '<M-k>',
-          node_incremental = '<M-k>',
-          scope_incremental = '<M-s>',
-          node_decremental = '<M-j>',
+          --init_selection = '<M-k>',
+          --node_incremental = '<M-k>',
+          --scope_incremental = '<M-s>',
+          --node_decremental = '<M-j>',
         },
       },
     },

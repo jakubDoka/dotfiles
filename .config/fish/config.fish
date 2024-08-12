@@ -13,6 +13,7 @@ if status is-interactive
     alias light='sudo sh -c "cat /sys/class/backlight/intel_backlight/max_brightness > /sys/class/backlight/intel_backlight/brightness"'
     alias headset="bluetoothctl connect $HEADPHONES_MAC"
     alias headunset="bluetoothctl disconnect $HEADPHONES_MAC"
+    alias hyperventilate='echo level disengaged | sudo tee /proc/acpi/ibm/fan'
 
     ## config preservation
     alias gfg='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
