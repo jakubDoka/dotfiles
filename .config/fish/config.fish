@@ -18,7 +18,7 @@ if status is-interactive
     ## config preservation
     alias gfg='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
     function gfgup
-       gfg add -f $argv[1] && gfg commit -m"$argv[2]" && gfg push
+       gfg add $argv[1] && gfg commit -m"$argv[2]" && gfg push
     end
     function gfgupm
        gfg add -f -u && gfg commit -m"$argv[1]" && gfg push
