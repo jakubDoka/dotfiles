@@ -83,12 +83,17 @@ do -- rebinds
   map('[d', vim.diagnostic.goto_prev, 'Go to previous [D]iagnostic message')
   map(']d', vim.diagnostic.goto_next, 'Go to next [D]iagnostic message')
   map('<leader>tr', '<cmd>set relativenumber!<CR>', '[T]oggle [R]elative number')
+  map('<leader>e', vim.diagnostic.open_float, 'Show diagnostic [E]rror messages')
 
   map_cfg('c', '<M-', '>')
-  map('h', '<Left>', 'Move left')
-  map('j', '<Down>', 'Move down')
-  map('k', '<Up>', 'Move up')
-  map('l', '<Right>', 'Move right')
+  map('h', '<Left>')
+  map('j', '<Down>')
+  map('k', '<Up>')
+  map('l', '<Right>')
+
+  map_cfg('n', '<M-', '>')
+  map('j', '<PageDown>')
+  map('k', '<PageUp>')
 end
 
 require('lazy').setup({
@@ -221,6 +226,11 @@ require('lazy').setup({
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
+          },
+        },
+        pickers = {
+          find_files = {
+            hidden = true,
           },
         },
       }
@@ -399,6 +409,7 @@ require('lazy').setup({
       'L3MON4D3/LuaSnip',
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
+      'hrsh7th/cmp-buffer',
     },
     config = function()
       local cmp = require 'cmp'
@@ -422,6 +433,7 @@ require('lazy').setup({
           ['<C-f>'] = cmp.mapping.scroll_docs(4),
 
           ['<C-j>'] = cmp.mapping.confirm { select = true },
+          ['<tab>'] = cmp.mapping.confirm { select = true },
 
           ['<C-Space>'] = cmp.mapping.complete {},
 
@@ -440,7 +452,7 @@ require('lazy').setup({
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
           { name = 'path' },
-          { name = 'supermaven' },
+          { name = 'buffer' },
         },
       }
     end,
