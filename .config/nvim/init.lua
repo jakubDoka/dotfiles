@@ -35,9 +35,7 @@ do -- options
   vim.opt.timeoutlen = 300
   vim.opt.undofile = true
   vim.opt.updatetime = 250
-end
 
-do -- install lazy
   vim.api.nvim_create_autocmd('TextYankPost', {
     desc = 'Highlight when yanking (copying) text',
     group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
@@ -45,7 +43,9 @@ do -- install lazy
       vim.highlight.on_yank()
     end,
   })
+end
 
+do -- install lazy
   local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
   if not vim.loop.fs_stat(lazypath) then
     local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
@@ -99,17 +99,31 @@ end
 require('lazy').setup({
   {
     'ThePrimeagen/harpoon',
+    branch = 'harpoon2',
+    dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
+      local harpoon = require 'harpoon'
+
+      harpoon:setup()
+
       map_cfg('n', '<M-', '>')
-      map('m', require('harpoon.mark').add_file, '[M]mark with harpoon')
-      map('q', require('harpoon.ui').toggle_quick_menu, '[H]arpoon [T]oggle [M]enu')
-      map('n', require('harpoon.ui').nav_next, '[H]arpoon [G]o to [N]ext mark')
-      map('p', require('harpoon.ui').nav_next, '[H]arpoon [G]o to [N]ext mark')
+      map('m', function()
+        harpoon:list():add()
+      end, '[M]mark with harpoon')
+      map('q', function()
+        harpoon.ui:toggle_quick_menu(harpoon:list())
+      end, '[H]arpoon [T]oggle [M]enu')
+      map('n', function()
+        harpoon:list():prev()
+      end, '[H]arpoon [G]o to [N]ext mark')
+      map('p', function()
+        harpoon:list():next()
+      end, '[H]arpoon [G]o to [N]ext mark')
 
       for i = 0, 9 do
         local key = (i + 1) % 10
         map(tostring(key), function()
-          require('harpoon.ui').nav_file(key)
+          harpoon:list():select(key)
         end, '[H]arpoon [G]o to mark ' .. key)
       end
     end,
@@ -240,19 +254,12 @@ require('lazy').setup({
       ts.load_extension 'dap'
 
       map_cfg('n', '<leader>')
-      map('sh', builtin.help_tags, '[S]earch [H]elp')
-      map('sk', builtin.keymaps, '[S]earch [K]eymaps')
       map('sf', builtin.find_files, '[S]earch [F]iles')
-      map('ss', builtin.builtin, '[S]earch [S]elect Telescope')
-      map('sw', builtin.grep_string, '[S]earch current [W]ord')
       map('sg', builtin.live_grep, '[S]earch by [G]rep')
       map('sd', builtin.diagnostics, '[S]earch [D]iagnostics')
       map('sr', builtin.resume, '[S]earch [R]esume')
-      map('s.', builtin.oldfiles, '[S]earch Recent Files ("." for repeat)')
-      map('<leader>', builtin.buffers, '[ ] Find existing buffers')
+      map('so', builtin.oldfiles, '[S]earch Recent Files ("." for repeat)')
       map('/', builtin.current_buffer_fuzzy_find, '[/] Fuzzily search in current buffer')
-      map('s/', builtin.live_grep, '[S]earch [/] in Open Files')
-      map('sn', builtin.find_files, '[S]earch [N]eovim files')
       map('lb', ':Telescope dap list_breakpoints<CR>', '[L]ist [B]reakpoints')
     end,
   },
@@ -263,6 +270,7 @@ require('lazy').setup({
       'williamboman/mason.nvim',
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
+      'https://git.ablecorp.us/kodin/hblang.vim.git',
       { 'j-hui/fidget.nvim', opts = {} },
       { 'folke/neodev.nvim', opts = {} },
     },
@@ -275,7 +283,6 @@ require('lazy').setup({
             vim.keymap.set('n', keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
           end
 
-          lmap('<leader>ws', tb.lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
           lmap('<leader>lr', tb.lsp_references, '[L]ist [R]eferences')
           lmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
           lmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
@@ -288,15 +295,7 @@ require('lazy').setup({
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
       local servers = {
-        lua_ls = {
-          settings = {
-            Lua = {
-              completion = {
-                callSnippet = 'Replace',
-              },
-            },
-          },
-        },
+        bashls = {},
         cssls = {
           capabilities = {
             textDocument = {
@@ -308,6 +307,7 @@ require('lazy').setup({
             },
           },
         },
+        gopls = {},
         html = {
           capabilities = {
             textDocument = {
@@ -319,6 +319,17 @@ require('lazy').setup({
             },
           },
         },
+        htmx = {},
+        lua_ls = {
+          settings = {
+            Lua = {
+              completion = {
+                callSnippet = 'Replace',
+              },
+            },
+          },
+        },
+        pyright = {},
         rust_analyzer = {
           settings = {
             ['rust-analyzer'] = {
@@ -342,6 +353,10 @@ require('lazy').setup({
             },
           },
         },
+        stylua = {},
+        tailwindcss = {},
+        ts_ls = {},
+        zls = {},
       }
 
       require('mason').setup()
@@ -458,8 +473,7 @@ require('lazy').setup({
     end,
   },
 
-  -- mark: theme
-  {
+  { -- mark: theme
     'olimorris/onedarkpro.nvim',
     priority = 1000,
     opts = {
@@ -487,13 +501,6 @@ require('lazy').setup({
   },
 
   {
-    'folke/todo-comments.nvim',
-    event = 'VimEnter',
-    dependencies = { 'nvim-lua/plenary.nvim' },
-    opts = { signs = false },
-  },
-
-  {
     'echasnovski/mini.nvim',
     config = function()
       require('mini.ai').setup { n_lines = 500 }
@@ -507,6 +514,7 @@ require('lazy').setup({
       end
     end,
   },
+
   {
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
@@ -515,21 +523,20 @@ require('lazy').setup({
       auto_install = true,
       highlight = {
         enable = true,
-        additional_vim_regex_highlighting = { 'ruby' },
+        additional_vim_regex_highlighting = false,
       },
-      indent = { enable = true, disable = { 'ruby' } },
-      incremental_selection = {
-        enable = true,
-        keymaps = {
-          --init_selection = '<M-k>',
-          --node_incremental = '<M-k>',
-          --scope_incremental = '<M-s>',
-          --node_decremental = '<M-j>',
-        },
-      },
+      indent = { enable = true },
+      --incremental_selection = {
+      --  enable = true,
+      --  keymaps = {
+      --    --init_selection = '<M-k>',
+      --    --node_incremental = '<M-k>',
+      --    --scope_incremental = '<M-s>',
+      --    --node_decremental = '<M-j>',
+      --  },
+      --},
     },
     config = function(_, opts)
-      ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup(opts)
     end,
   },
