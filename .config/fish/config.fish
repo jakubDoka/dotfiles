@@ -1,5 +1,6 @@
 if status is-interactive
     set HEADPHONES_MAC "EE:36:62:B8:7A:43"
+    export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 
     function padd
         set -gx PATH $PATH $argv

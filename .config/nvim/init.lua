@@ -538,6 +538,44 @@ require('lazy').setup({
     },
     config = function(_, opts)
       require('nvim-treesitter.configs').setup(opts)
+
+      local utils = require 'nvim-treesitter.ts_utils'
+
+      ---@param parent_selector string
+      ---@param next boolean
+      local function swap_nodes(parent_selector, next)
+        local node = utils.get_node_at_cursor()
+        if node == nil then
+          print 'no node under the cursor'
+          return
+        end
+
+        while true do
+          local next_node = node:parent()
+          if next_node == nil then
+            print('cannot find ' .. parent_selector)
+            return
+          end
+          if next_node:type() == parent_selector then
+            break
+          end
+          node = next_node
+        end
+
+        local next_node = node
+        for _ = 1, vim.v.count + 1 do
+          local next_n = next and utils.get_next_node(next_node) or (not next and utils.get_previous_node(next_node))
+          if not next_n then
+            print 'no sibling found'
+            return
+          end
+          next_node = next_n
+        end
+
+        utils.swap_nodes(node, next_node, 0, true)
+      end
+
+      vim.keymap.set('n', 'tsa', curry(swap_nodes, 'arguments', true), { desc = '[T]reesitter [S]wap [A]rguments' })
     end,
   },
 }, {
