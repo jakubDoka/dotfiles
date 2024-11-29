@@ -82,6 +82,7 @@ static int vbellrefreshrate = 16;
 #define PARTICLE_LIFETIME_MS 1000L
 #define PARTICLE_SIZE 5.0f
 #define FRICTION 0.98f;
+#define GRAVITY 0.4f;
 #define FOR_REACH_PARTICLE(t) for (particle_t *t = particles; t != particles + MAX_PARTICLES; t++)
 
 typedef struct {
@@ -131,6 +132,8 @@ static int is_any_alive(int w, int h, struct timespec now) {
 
 		t->dx *= FRICTION;
 		t->dy *= FRICTION;
+
+		t->dy += GRAVITY;
 
 		alive = 1;
 	}
