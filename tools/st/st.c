@@ -2292,7 +2292,7 @@ tcontrolcode(uchar ascii)
 			/* backwards compatibility to xterm */
 			strhandle();
 		} else {
-			xbell();
+			xbell(term.c.x, term.c.y);
 		}
 		break;
 	case '\033': /* ESC */

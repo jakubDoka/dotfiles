@@ -1658,23 +1658,24 @@ xsettitle(char *p)
 }
 
 
-static int vbellset = 0; /* 1 during visual bell, 0 otherwise */
-static struct timespec lastvbell = {0};
+static struct timespec now = {0};
 
 static int
 isvbellcell(int x, int y)
 {
 	int right = win.tw / win.cw - 1, bottom = win.th / win.ch - 1;
-
 	return VBCELL;  /* logic condition defined at config.h */
 }
 
+static int
+vbellrefresh() {
+	int w = win.tw / win.cw - 1, h = win.th / win.ch - 1;
+	return VBREFRESH;
+}
+
 static void
-vbellbegin() {
-	clock_gettime(CLOCK_MONOTONIC, &lastvbell);
-	if (vbellset)
-		return;
-	vbellset = 1;
+vbellbegin(int x, int y) {
+	VBTRIGGER;
 	redraw();
 	XFlush(xw.dpy);
 }
@@ -1706,7 +1707,7 @@ xdrawline(Line line, int x1, int y1, int x2)
 				continue;
 			if (selected(x, y1))
 				new.mode ^= ATTR_REVERSE;
-			if (vbellset && isvbellcell(x, y1))
+			if (isvbellcell(x, y1))
 				new.mode ^= ATTR_REVERSE;
 			if (i > 0 && ATTRCMP(base, new)) {
 				xdrawglyphfontspecs(specs, base, i, ox, y1, dmode);
@@ -1803,14 +1804,14 @@ xseturgency(int add)
 }
 
 void
-xbell(void)
+xbell(int x, int y)
 {
 	if (!(IS_SET(MODE_FOCUSED)))
 		xseturgency(1);
 	if (bellvolume)
 		XkbBell(xw.dpy, xw.win, bellvolume, (Atom)NULL);
-	if (vbelltimeout)
-		vbellbegin();
+	if (vbellrefreshrate)
+		vbellbegin(x, y);
 }
 
 void
@@ -1969,7 +1970,7 @@ run(void)
 	int w = win.w, h = win.h;
 	fd_set rfd;
 	int xfd = XConnectionNumber(xw.dpy), ttyfd, xev, drawing;
-	struct timespec seltv, *tv, now, lastblink, trigger;
+	struct timespec seltv, *tv, lastblink, trigger;
 	double timeout;
 
 	/* Waiting for window mapping */
@@ -2059,15 +2060,13 @@ run(void)
 			}
 		}
 
-		if (vbellset) {
-			double remain = vbelltimeout - TIMEDIFF(now, lastvbell);
-			if (remain <= 0) {
-				vbellset = 0;
+		if (vbellrefresh()) {
+			if (timeout < 0 || vbellrefreshrate < timeout) {
+				timeout = vbellrefreshrate;
 				redraw();
-			} else if (timeout < 0 || remain < timeout) {
-				timeout = remain;
 			}
 		}
+
 
 		draw();
 		XFlush(xw.dpy);

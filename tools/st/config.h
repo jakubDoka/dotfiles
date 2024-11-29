@@ -75,10 +75,88 @@ static unsigned int cursorthickness = 2;
  */
 static int bellvolume = -100;
 
-/* visual-bell timeout in ms (0 to disable visual-bell) */
-static int vbelltimeout = 150;
+static int vbellrefreshrate = 16;
 
-#define VBCELL (random() % ((bottom / (y + 1)) + 2)) == 0
+#define PARTICLE_SPEED 5
+#define MAX_PARTICLES 20
+#define PARTICLE_LIFETIME_MS 1000L
+#define PARTICLE_SIZE 5.0f
+#define FRICTION 0.98f;
+#define FOR_REACH_PARTICLE(t) for (particle_t *t = particles; t != particles + MAX_PARTICLES; t++)
+
+typedef struct {
+	float x, y, dx, dy;
+	struct timespec until;
+} particle_t;
+
+static particle_t particles[MAX_PARTICLES] = { 0 };
+
+static int is_active(int x, int y, struct timespec now) {
+	FOR_REACH_PARTICLE(t) {
+		float lr = TIMEDIFF(t->until, now) / PARTICLE_LIFETIME_MS * PARTICLE_SIZE;
+		if (lr < 0) continue;
+		float dx = (t->x - x) * 0.5, dy = t->y - y;
+		float d = dx * dx + dy * dy;
+		if (d < lr * lr) return 1;
+	}
+
+	return 0;
+}
+
+static int is_any_alive(int w, int h, struct timespec now) {
+	int alive = 0;
+	FOR_REACH_PARTICLE(t) {
+		float lr = TIMEDIFF(t->until, now) / PARTICLE_LIFETIME_MS * PARTICLE_SIZE;
+		if (lr < 0) continue;
+
+		if (t->x + t->dx - lr < 0) {
+			t->dx *= -1;
+			t->x = lr;
+		}
+		if (t->y + t->dy - lr < 0) {
+			t->dy *= -1;
+			t->y = lr;
+		}
+		if (t->x + t->dx + lr > w) {
+			t->dx *= -1;
+			t->x = w - lr;
+		}
+		if (t->y + t->dy + lr > h) {
+			t->dy *= -1;
+			t->y = h - lr;
+		}
+
+		t->x += t->dx;
+		t->y += t->dy;
+
+		t->dx *= FRICTION;
+		t->dy *= FRICTION;
+
+		alive = 1;
+	}
+	return alive;
+}
+
+static void spawn_particle(int x, int y, struct timespec now) {
+	FOR_REACH_PARTICLE(t) {
+		if (TIMEDIFF(t->until, now) < 0) {
+			*t = (particle_t){
+				.x = x, .y = y,
+				.dx = random() % (2 * PARTICLE_SPEED) - PARTICLE_SPEED,
+				.dy = random() % (2 * PARTICLE_SPEED) - PARTICLE_SPEED,
+				.until = now,
+			};
+			t->until.tv_nsec += PARTICLE_LIFETIME_MS * 1000000L;
+			t->until.tv_sec += t->until.tv_nsec / 1000000000L;
+			t->until.tv_nsec %= 1000000000L;
+			break;
+		}
+	}
+}
+
+#define VBCELL is_active(x, y, now)
+#define VBREFRESH is_any_alive(w, h, now)
+#define VBTRIGGER spawn_particle(x, y, now)
 
 /* default TERM value */
 char *termname = "st-256color";
