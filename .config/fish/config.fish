@@ -26,11 +26,10 @@ if status is-interactive
     end
 
     function gacp
-        git add $argv[1] && git commit -m"$argv[2]" && git push
+        git add $argv[1] && git commit -s && git push
     end
 
-    ## global replace
-    function rgsed
+    function rgsed # global replace
       if [ "$argv[3]" = "-i" ]
         rg -l $argv[1] | xargs sed -i -E "s/$argv[1]/$argv[2]/g"
       else
@@ -41,6 +40,23 @@ if status is-interactive
     # extra completions
     set COMP_DIR $HOME/.config/fish/completions/
     rg --generate=complete-fish > $COMP_DIR/rg.fish
+
+    function sd # search directories
+        set FZF_DEFAULT_COMMAND 'rg --files | rg -v "/target/"'
+        set TARGET $(fzf --walker=dir,hidden)
+        test -n "$TARGET" && cd $TARGET && __fish_cancel_commandline
+    end
+
+    function sf # search files
+        set FZF_DEFAULT_COMMAND 'rg --files | rg -v "/target/"'
+        set TARGET $(fzf --walker=file,hidden --preview="bat --color=always --style=header,grid --line-range :500 {}")
+        test -n "$TARGET" && v $TARGET
+    end
+
+    function sa # search all
+        set TARGET $(fzf --walker=file,dir,hidden)
+        test -n "$TARGET" && v $TARGET
+    end
 end
 
 
@@ -48,28 +64,9 @@ function fish_user_key_bindings
     fish_vi_key_bindings
     fish_vi_cursor
 
-    function search_directories
-        set FZF_DEFAULT_COMMAND 'rg --files | rg -v "/target/"'
-        set TARGET $(fzf --walker=dir,hidden)
-        test -n "$TARGET" && cd $TARGET && __fish_cancel_commandline
-    end
-
-    function search_files
-        set FZF_DEFAULT_COMMAND 'rg --files | rg -v "/target/"'
-        set TARGET $(fzf --walker=file,hidden --preview="bat --color=always --style=header,grid --line-range :500 {}")
-        test -n "$TARGET" && v $TARGET
-    end
-
-    function search_all
-        set TARGET $(fzf --walker=file,dir,hidden)
-        test -n "$TARGET" && v $TARGET
-    end
 
     alias clear_kb='clear; commandline -f repaint'
 
-    bind --mode default -m insert \x20sd search_directories
-    bind --mode default -m insert \x20sf search_files
-    bind --mode default -m insert \x20sa search_all
     bind --mode insert \cE clear_kb
     bind --mode default \cE clear_kb
 end

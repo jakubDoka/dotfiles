@@ -5,9 +5,9 @@ while true; do
 	BATERRY=$(upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep percentage | cut -d':' -f2 | awk '{$1=$1};1')
 	BATTERY_NUM=${BATERRY::-1}
 	SECONDS=$(date +%s)
-	if((BATTERY_NUM < 15 && SECONDS % 2)); then
-		BATERRY="!!battery too low!!"
-	fi
+	((BATTERY_NUM < 15 && SECONDS % 2)) &&\
+		[ $(cat /sys/class/power_supply/BAT0/status) != "Charging" ] &&\
+			BATERRY="!!battery too low!!"
 	TIME=$(date +'%Y-%m-%d %X')
 	echo "impl Temp<$TEMP'C> + Bat<$BATERRY> + Time<$TIME>"
 	sleep 1
