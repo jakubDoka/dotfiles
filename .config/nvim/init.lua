@@ -191,6 +191,47 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
     },
+    config = function()
+      local gitsigns = require 'gitsigns'
+
+      -- Navigation
+      map_cfg 'n'
+      map(']h', function()
+        if vim.wo.diff then
+          vim.cmd.normal { ']h', bang = true }
+        else
+          gitsigns.nav_hunk 'next'
+        end
+      end, 'next hunk')
+      map('[h', function()
+        if vim.wo.diff then
+          vim.cmd.normal { '[h', bang = true }
+        else
+          gitsigns.nav_hunk 'prev'
+        end
+      end, 'prev hunk')
+
+      -- Actions
+      map_cfg('n', '<leader>h')
+      map('s', gitsigns.stage_hunk, '[H]unk [S]tage')
+      map('r', gitsigns.reset_hunk, '[H]unk [R]eset')
+      map('u', gitsigns.undo_stage_hunk, '[H]unk [U]ndo Stage Hunk')
+      map('p', gitsigns.preview_hunk, '[H]unk [P]revie2')
+      map('S', gitsigns.stage_buffer, '[H]unk [S]tage Buffer')
+      map('R', gitsigns.reset_buffer, '[H]unk [R]eset Buffer')
+      map('b', curry(gitsigns.blame_line, { full = true }), '[H]unk [B]lame line')
+      map('d', gitsigns.diffthis, '[H]unk [D]iff')
+      map('D', curry(gitsigns.diffthis, '~'), '[H]unk [D]iff ~')
+      map_cfg('v', '<leader>h')
+      map('s', curry(gitsigns.stage_hunk, { vim.fn.line '.', vim.fn.line 'v' }), 'What?')
+      map('r', curry(gitsigns.reset_hunk, { vim.fn.line '.', vim.fn.line 'v' }), 'What again?')
+      map_cfg('n', '<leader>t')
+      map('b', gitsigns.toggle_current_line_blame, '[T]oggle Current Line [B]lame')
+      map('d', gitsigns.toggle_deleted, '[T]oggle [D]eleted')
+
+      -- Text object
+      --map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+    end,
   },
 
   {
