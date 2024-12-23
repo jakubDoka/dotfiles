@@ -28,10 +28,8 @@ output eDP-1 pos 0 0 res 1920x1200 bg #000000 solid_color bg ~/Documents/backgro
 
 exec --no-startup-id swaymsg 'exec ~/tools/st/st'
 exec --no-startup-id swaymsg 'exec brave'
-exec --no-startup-id swaymsg 'exec slack'
 
 for_window [title="Brave"] move to workspace 2
-for_window [title="Slack"] move to workspace 3
 for_window [title="Steam"] move to workspace 4
 
 #
