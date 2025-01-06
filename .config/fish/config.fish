@@ -57,6 +57,19 @@ if status is-interactive
         set TARGET $(fzf --walker=file,dir,hidden)
         test -n "$TARGET" && v $TARGET
     end
+
+    function pref-stamina
+        echo level disengaged | sudo tee /proc/acpi/ibm/fan
+        cpupower -c 0-7 frequency-set -u 2500mhz
+        cpupower -c 8-15 frequency-set -u 2000mhz
+        cpupower frequency-set -g performance
+    end
+
+    function perf-burst
+        echo level auto | sudo tee /proc/acpi/ibm/fan
+        cpupower -c 0-15 frequency-set -u 5000mhz
+        cpupower frequency-set -g performance
+    end
 end
 
 
