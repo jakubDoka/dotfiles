@@ -1,5 +1,6 @@
 if status is-interactive
     set HEADPHONES_MAC "EE:36:62:B8:7A:43"
+    set KEYBOARD_MAC   "ED:D9:36:92:D6:EC"
     export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 
     function padd
@@ -14,6 +15,8 @@ if status is-interactive
     alias light='sudo sh -c "cat /sys/class/backlight/intel_backlight/max_brightness > /sys/class/backlight/intel_backlight/brightness"'
     alias headset="bluetoothctl connect $HEADPHONES_MAC"
     alias headunset="bluetoothctl disconnect $HEADPHONES_MAC"
+    alias keyboardon="bluetoothctl connect $KEYBOARD_MAC"
+    alias keyboardoff="bluetoothctl disconnect $KEYBOARD_MAC"
     alias hyperventilate='echo level disengaged | sudo tee /proc/acpi/ibm/fan'
 
     ## config preservation
@@ -58,17 +61,17 @@ if status is-interactive
         test -n "$TARGET" && v $TARGET
     end
 
-    function pref-stamina
-        echo level disengaged | sudo tee /proc/acpi/ibm/fan
-        cpupower -c 0-7 frequency-set -u 2500mhz
-        cpupower -c 8-15 frequency-set -u 2000mhz
-        cpupower frequency-set -g performance
+    function perf-stamina
+        sudo echo level disengaged | sudo tee /proc/acpi/ibm/fan
+        sudo cpupower -c 0-7 frequency-set -u 2500mhz
+        sudo cpupower -c 8-15 frequency-set -u 2000mhz
+        sudo cpupower frequency-set -g performance
     end
 
     function perf-burst
-        echo level auto | sudo tee /proc/acpi/ibm/fan
-        cpupower -c 0-15 frequency-set -u 5000mhz
-        cpupower frequency-set -g performance
+        sudo echo level auto | sudo tee /proc/acpi/ibm/fan
+        sudo cpupower -c 0-15 frequency-set -u 5000mhz
+        sudo cpupower frequency-set -g performance
     end
 end
 
