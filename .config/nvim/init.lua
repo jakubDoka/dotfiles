@@ -43,6 +43,14 @@ do -- options
       vim.highlight.on_yank()
     end,
   })
+
+  vim.api.nvim_create_autocmd('VimEnter', {
+    callback = function()
+      if vim.fn.argc() == 0 then
+        vim.cmd [[e ~/todos]]
+      end
+    end,
+  })
 end
 
 do -- install lazy

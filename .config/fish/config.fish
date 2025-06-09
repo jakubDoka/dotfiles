@@ -1,4 +1,6 @@
 if status is-interactive
+    echo "$(cat ~/todos | tac)"
+
     set HEADPHONES_MAC "EE:36:62:B8:7A:43"
     set KEYBOARD_MAC   "ED:D9:36:92:D6:EC"
     export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
@@ -7,6 +9,7 @@ if status is-interactive
         set -gx PATH $PATH $argv
     end
     padd $HOME/.cargo/bin
+    padd $HOME/.detee/bin
 
     alias v='nvim'
     alias cpy='wl-copy'
