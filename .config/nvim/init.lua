@@ -8,9 +8,11 @@ local function curry(f, ...)
 end
 
 do -- options
+  vim.g.autoformat = false
   vim.g.have_nerd_font = true
   vim.g.mapleader = ' '
   vim.g.maplocalleader = ' '
+  vim.opt.colorcolumn = '80'
   vim.opt.belloff = {}
   vim.opt.breakindent = true
   vim.opt.clipboard = 'unnamedplus'
@@ -36,19 +38,20 @@ do -- options
   vim.opt.undofile = true
   vim.opt.updatetime = 250
 
+  vim.diagnostic.config {
+    virtual_text = {
+      prefix = 'ඞ',
+    },
+    signs = true, -- Show signs in the sign column
+    underline = true, -- Underline problematic text
+    update_in_insert = false, -- Don't update diagnostics in insert mode
+  }
+
   vim.api.nvim_create_autocmd('TextYankPost', {
     desc = 'Highlight when yanking (copying) text',
     group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
     callback = function()
       vim.highlight.on_yank()
-    end,
-  })
-
-  vim.api.nvim_create_autocmd('VimEnter', {
-    callback = function()
-      if vim.fn.argc() == 0 then
-        vim.cmd [[e ~/todos]]
-      end
     end,
   })
 end
@@ -107,6 +110,34 @@ end
 
 require('lazy').setup({
   {
+    'supermaven-inc/supermaven-nvim',
+    config = function()
+      require('supermaven-nvim').setup {
+        keymaps = {
+          accept_suggestion = '<Right>',
+          clear_suggestion = '<C-]>',
+          accept_word = '<C-j>',
+        },
+        color = {
+          suggestion_color = '#aaaaaa',
+          cterm = 244,
+        },
+        log_level = 'off', -- set to "off" to disable logging completely
+        disable_inline_completion = false, -- disables inline completion for use with cmp
+        disable_keymaps = false, -- disables built in keymaps for more manual control
+        condition = function()
+          return false
+        end, -- condition to check for stopping supermaven, `true` means to stop supermaven when the condition is true.
+      }
+
+      local sm = require 'supermaven-nvim.api'
+      map_cfg('n', '<leader>m')
+      map('t', function()
+        sm.toggle()
+      end)
+    end,
+  },
+  {
     'ThePrimeagen/harpoon',
     branch = 'harpoon2',
     dependencies = { 'nvim-lua/plenary.nvim' },
@@ -149,7 +180,10 @@ require('lazy').setup({
       map('7', dap.step_into, '[D]ebug [I]n [T]o')
       map('8', dap.step_out, '[D]ebug [O]ut')
       map_cfg('n', '<leader>')
-      map('tb', dap.toggle_breakpoint, '[D]ebug [T]oggle [B]reakpoint')
+      map('db', dap.toggle_breakpoint, '[D]ebug [T]oggle [B]reakpoint')
+      map('dB', function()
+        dap.toggle_breakpoint(vim.fn.input 'Condition: ')
+      end, '[D]ebug [R]epl')
       map('cb', dap.clear_breakpoints, '[D]ebug [C]lear [B]reakpoints')
       map('dr', dap.repl.open, '[D]ebug [R]epl')
       map('dh', dwg.hover, '[D]ebug [H]over')
@@ -163,7 +197,7 @@ require('lazy').setup({
       -- dap-adapters
       dap.adapters.lldb = {
         type = 'executable',
-        command = '/usr/bin/lldb-dap',
+        command = '/usr/bin/codelldb',
         name = 'lldb',
       }
 
@@ -176,8 +210,11 @@ require('lazy').setup({
           return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
         end,
         cwd = '${workspaceFolder}',
-        stopOnEntry = false,
-        args = {},
+        stopOnEntry = true,
+        args = function()
+          local args_string = vim.fn.input 'Arguments: '
+          return vim.split(args_string, ' ')
+        end,
         runInTerminal = true,
       }
 
@@ -316,14 +353,13 @@ require('lazy').setup({
       map('lb', ':Telescope dap list_breakpoints<CR>', '[L]ist [B]reakpoints')
     end,
   },
-
+  'https://git.ablecorp.eu/koldinium/hblang.vim',
   {
     'neovim/nvim-lspconfig',
     dependencies = {
       'williamboman/mason.nvim',
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
-      'https://git.ablecorp.us/kodin/hblang.vim.git',
       { 'j-hui/fidget.nvim', opts = {} },
       { 'folke/neodev.nvim', opts = {} },
     },
@@ -419,6 +455,8 @@ require('lazy').setup({
         stylua = {},
         tailwindcss = {},
         ts_ls = {},
+        kotlin_lsp = {},
+        jdtls = {},
         zls = {},
       }
 
@@ -433,7 +471,8 @@ require('lazy').setup({
           function(server_name)
             local server = servers[server_name] or {}
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
+
+            vim.lsp.config[server_name].setup(server)
           end,
         },
       }
@@ -445,7 +484,7 @@ require('lazy').setup({
     opts = {
       notify_on_error = false,
       format_on_save = function(bufnr)
-        local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = { c = true, cpp = true, java = true }
         return {
           timeout_ms = 500,
           lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],

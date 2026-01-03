@@ -269,7 +269,7 @@ index b9f66e7..d9b163e 100644
 -	Line *tmp = term.line;
 -
 -	term.line = term.alt;
--	term.alt = tmp;
+-fterm.alt = tmp;
  	term.mode ^= MODE_ALTSCREEN;
  	tfulldirt();
  }

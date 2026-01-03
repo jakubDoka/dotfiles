@@ -26,12 +26,20 @@ set $lock swaylock -i ~/Documents/backgrounds/wondow.png
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
 output eDP-1 pos 0 0 res 1920x1200 bg #000000 solid_color bg ~/Documents/backgrounds/wondow-dark.png fit
 
+input "1386:912:Wacom_Cintiq_16_Pen" {
+    map_to_output HDMI-A-1
+}
+
+# Optional: map the touch input as well
+input "1386:912:Wacom_Cintiq_16_Finger" {
+    map_to_output HDMI-A-1
+}
+
 exec --no-startup-id swaymsg 'exec ~/tools/st/st'
 exec --no-startup-id swaymsg 'exec brave'
 
 for_window [title="Brave"] move to workspace 2
 for_window [title="Steam"] move to workspace 3
-
 
 ### Input configuration
 #

@@ -1,5 +1,11 @@
 if status is-interactive
+
     echo "$(cat ~/todos | tac)"
+
+
+    export ANDROID_HOME=$HOME/Android/Sdk
+    export ANDROID_SDK_ROOT=$ANDROID_HOME
+    export NDK_HOME=$ANDROID_HOME/ndk/29.0.14033849
 
     set HEADPHONES_MAC "EE:36:62:B8:7A:43"
     set KEYBOARD_MAC   "ED:D9:36:92:D6:EC"
@@ -10,6 +16,10 @@ if status is-interactive
     end
     padd $HOME/.cargo/bin
     padd $HOME/.detee/bin
+    padd $ANDROID_HOME/cmdline-tools/latest/bin
+    #padd $ANDROID_HOME/platform-tools
+    padd $HOME/platform-tools/
+
 
     alias v='nvim'
     alias cpy='wl-copy'
@@ -21,6 +31,14 @@ if status is-interactive
     alias keyboardon="bluetoothctl connect $KEYBOARD_MAC"
     alias keyboardoff="bluetoothctl disconnect $KEYBOARD_MAC"
     alias hyperventilate='echo level disengaged | sudo tee /proc/acpi/ibm/fan'
+
+    function restart-keyboard
+        bluetoothctl remove "$KEYBOARD_MAC"
+        bluetoothctl scan on
+        sleep 5
+        bluetoothctl pair "$KEYBOARD_MAC"
+        bluetoothctl trust "$KEYBOARD_MAC"
+    end
 
     ## config preservation
     alias gfg='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
@@ -76,6 +94,8 @@ if status is-interactive
         sudo cpupower -c 0-15 frequency-set -u 5000mhz
         sudo cpupower frequency-set -g performance
     end
+
+    fnm env | source
 end
 
 
