@@ -35,10 +35,6 @@ input "1386:912:Wacom_Cintiq_16_Finger" {
     map_to_output HDMI-A-1
 }
 
-input * {
-    repeat_rate 0
-}
-
 exec --no-startup-id swaymsg 'exec ~/tools/st/st'
 exec --no-startup-id swaymsg 'exec brave'
 
@@ -166,7 +162,7 @@ for_window [title="Steam"] move to workspace 3
 #
 # Key repetition
 #
-    bindsym $mod+t exec ./toggle-key-repeat.sh
+    bindsym $mod+t exec ~/.config/sway/toggle-key-repeat.sh
 #
 # Hardware switches:
 #
