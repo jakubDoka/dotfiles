@@ -8,6 +8,7 @@
 	ui = auto
 [core]
 	editor = nvim
+	hooksPath = /home/mlokis/.config/git/hooks/
 [commit]
 	gpgsign = true
 [pull]
